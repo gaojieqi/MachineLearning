@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+#-*- coding:utf-8 -*-
+import hmac
+import base64,binascii,zlib
+import os,random
+import time
+import httplib
+import urllib
+import urllib2
+import re
+import json
+
+
+def jsonFile(fileData):
+    file = open("json_data","w")
+    file.write(fileData)
+    file.close()
+
+def registerUrl():
+    try:
+        req = urllib.urlopen("http://www.gdmo.cn/weather-gdmo/citylive/city-live!cityLiveData")
+        data = req.read()
+        return data
+    except IOError as error:
+        print("Your network is so bad!")
+        exit()
+
+def praserJsonFile(jsonData):
+    value = json.loads(jsonData)
+    print value
+    rootlist = value.keys()
+    for rootkey in rootlist:
+        python_to_json=json.dumps(value[rootkey], ensure_ascii=True)
+        json_to_python=json.loads(python_to_json)
+        if int(json_to_python[0]["obtId"]) == 59304:
+            print "-------------------"
+            print json_to_python[1]
+    fp = open('data.json', 'w+')
+    fp.write(json.dumps(value))
+    fp.close()
+    # for subkey in subvalue:
+    #     print subkey,subvalue[subkey]
+    #
+
+def test_function():
+    with open('data.json') as json_file:
+        data = json.load(json_file)
+        return data
+
+def sleeptime(hour,min,sec):
+    return hour*3600+min*60+sec;
+
+
+
+interval=sleeptime(5,0,0)
+while 1==1:
+    data = registerUrl()
+    praserJsonFile(data)
+
+
+# data_written = test_function()
+# print data_written["59658"]
+# print json.loads(json.dumps(data_written["59658"]))[0]['wd']
+
+
+
+
