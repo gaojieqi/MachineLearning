@@ -29,44 +29,25 @@ def saveData(jsonData,conn,cur):
             ddatetime = unicode(str(value[rootkey][i]['ddatetime']), 'utf-8')
             rain24h = unicode(str(value[rootkey][i]['rain24h']), 'utf-8')
             wd = unicode(str(value[rootkey][i]['wd']), 'utf-8')
-            current_time=cur.execute("select time from weather where city='%s'" %(cityName))
-            if current_time==ddatetime:
-                break;
+            request="select temperature from weather where city='%s' and time='%s'" % (cityName,ddatetime)
+            quantity=cur.execute(request)
+            # # 打印表中的多少数据
+            # info = cur.fetchmany(quantity)
+            # for ii in info:
+            #     print ii
+            if quantity > 0:
+                print "pass"
             else:
                 cur.execute("insert into weather values('%s','%s','%s','%s');" % (cityName, ddatetime, rain24h, wd))
-
-
-
-
-
-
-
-            # python_to_json=json.dumps(value[rootkey], ensure_ascii=True)
-        # json_to_python=json.loads(python_to_json)
-        # if int(json_to_python[0]["obtId"]) == 59304:
-        #
-        #     print json_to_python[1]
-
-    # fp = open('data.json', 'a+')
-    # fp.write(json.dumps(value))
-    # fp.close()
-
-    # for subkey in subvalue:
-    #     print subkey,subvalue[subkey]
-    #
-
-def test_function():
-    with open('data.json') as json_file:
-        data = json.load(json_file)
-        return data
+                print "Insert succeed in"+time.strftime( ISOTIMEFORMAT, time.localtime() )
 
 def sleeptime(hour,min,sec):
     return hour*3600+min*60+sec;
 
 
+ISOTIMEFORMAT='%Y-%m-%d %X'
+interval=sleeptime(1,0,0)
 
-
-interval=sleeptime(5,0,0)
 while 1==1:
     conn = MySQLdb.connect(
         host='localhost',
@@ -77,16 +58,13 @@ while 1==1:
     )
     cur = conn.cursor()
     conn.set_character_set('utf8')
+
     data = registerUrl()
     saveData(data,conn,cur)
+
+
     cur.close()
     conn.commit()
     conn.close()
     time.sleep(interval)
 
-
-
-
-# data_written = test_function()
-# print data_written["59658"]
-# print json.loads(json.dumps(data_written["59658"]))[0]['wd']
